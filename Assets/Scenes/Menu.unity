@@ -1593,7 +1593,7 @@ MonoBehaviour:
   videoCreditos: {fileID: 329766151}
   volverAlMenuAlTerminarCreditos: 1
   panelControles: {fileID: 133628026}
-  nombreEscenaJuego: Sample Scene
+  nombreEscenaJuego: MAP
 --- !u!4 &1444754159
 Transform:
   m_ObjectHideFlags: 0
