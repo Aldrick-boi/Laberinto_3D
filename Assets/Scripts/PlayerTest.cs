@@ -7,7 +7,7 @@ public class PlayerTest : MonoBehaviour
     public float jumpForce = 5f;
 
     [Header("Sprint")]
-    public float sprintMultiplier = 1.6f;
+    public float sprintMultiplier = 2.6f;
 
     [Header("Crouch")]
     public Transform cameraTransform;
@@ -18,20 +18,29 @@ public class PlayerTest : MonoBehaviour
 
     [Header("Camera Bob")]
     public float bobFrequency = 10f;
-    public float bobAmplitude = 0.07f;
+    public float bobAmplitude = 0.09f;
     public float bobSmoothing = 10f;
 
     [Header("Pasos")]
     public AudioClip[] footstepClips;
     public float stepDistance = 2f;
-    [Range(0f, 1f)] public float footstepVolume = 0.7f;
+    // Rango hasta 2 para poder pasar de volumen unitario (amplifica el clip) si hiciera falta
+    [Range(0f, 2f)] public float footstepVolume = 1.8f;
+    public float minFootstepPitch = 0.85f;
+    public float maxFootstepPitch = 1.6f;
 
     [Header("Detección de Suelo")]
     public LayerMask groundLayer;
 
+    [Header("Ambiente al Caminar")]
+    public AudioClip walkAmbienceClip;
+    [Range(0f, 1f)] public float walkAmbienceVolume = 0.08f;
+    public float walkAmbienceFadeSpeed = 2f;
+
     private Rigidbody rb;
     private CapsuleCollider col;
     private AudioSource audioSource;
+    private AudioSource walkAmbienceSource;
     private Vector3 lastStepPosition;
     private bool isCrouching;
     private float baseCameraY;
@@ -48,6 +57,15 @@ public class PlayerTest : MonoBehaviour
         rb.freezeRotation = true;
         lastStepPosition = transform.position;
         baseCameraY = standingCameraHeight;
+
+        // AudioSource propia (en loop) para no pisar los PlayOneShot de los pasos
+        walkAmbienceSource = gameObject.AddComponent<AudioSource>();
+        walkAmbienceSource.clip = walkAmbienceClip;
+        walkAmbienceSource.loop = true;
+        walkAmbienceSource.playOnAwake = false;
+        walkAmbienceSource.spatialBlend = 0f;
+        walkAmbienceSource.volume = 0f;
+        if (walkAmbienceClip != null) walkAmbienceSource.Play();
     }
 
     void Update()
@@ -87,7 +105,8 @@ public class PlayerTest : MonoBehaviour
 
         bool isMoving = moveDir.magnitude > 0.1f && IsGrounded();
         UpdateCameraPosition(isMoving);
-        UpdateFootsteps();
+        UpdateFootsteps(currentSpeed / Mathf.Max(moveSpeed, 0.01f));
+        UpdateWalkAmbience(isMoving);
     }
 
     private void UpdateCameraPosition(bool isMoving)
@@ -108,7 +127,7 @@ public class PlayerTest : MonoBehaviour
         cameraTransform.localPosition = pos;
     }
 
-    private void UpdateFootsteps()
+    private void UpdateFootsteps(float speedRatio)
     {
         if (!IsGrounded())
         {
@@ -123,16 +142,28 @@ public class PlayerTest : MonoBehaviour
 
         if (horizontalDelta.magnitude >= stepDistance)
         {
-            PlayFootstep();
+            PlayFootstep(speedRatio);
             lastStepPosition = transform.position;
         }
     }
 
-    private void PlayFootstep()
+    private void PlayFootstep(float speedRatio)
     {
         if (footstepClips.Length == 0 || audioSource == null) return;
         AudioClip clip = footstepClips[Random.Range(0, footstepClips.Length)];
+        // El pitch sube con la velocidad actual: al esprintar, el paso también "suena más rápido"
+        audioSource.pitch = Mathf.Clamp(speedRatio, minFootstepPitch, maxFootstepPitch);
         audioSource.PlayOneShot(clip, footstepVolume);
+    }
+
+    private void UpdateWalkAmbience(bool isMoving)
+    {
+        if (walkAmbienceSource == null) return;
+
+        // Sube o baja el volumen suavemente en vez de encender/apagar de golpe, para que
+        // la pista entre "de manera sutil" al empezar a caminar
+        float targetVolume = isMoving ? walkAmbienceVolume : 0f;
+        walkAmbienceSource.volume = Mathf.Lerp(walkAmbienceSource.volume, targetVolume, Time.deltaTime * walkAmbienceFadeSpeed);
     }
 
     private bool IsGrounded()

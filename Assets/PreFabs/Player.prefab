@@ -160,21 +160,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTest
   moveSpeed: 2
   jumpForce: 5
-  sprintMultiplier: 1.6
+  sprintMultiplier: 2.6
   cameraTransform: {fileID: 7600902867801768216}
   crouchSpeedMultiplier: 0.5
   standingCameraHeight: 0.5
   crouchCameraHeight: -0.14
   crouchTransitionSpeed: 8
   bobFrequency: 8
-  bobAmplitude: 0.12
+  bobAmplitude: 0.16
   bobSmoothing: 1.17
   footstepClips: []
   stepDistance: 2
-  footstepVolume: 0.7
+  footstepVolume: 1.8
+  minFootstepPitch: 0.85
+  maxFootstepPitch: 1.6
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  walkAmbienceClip: {fileID: 8300000, guid: 0cedd0af2694f48a1a42ba5d64e1734f, type: 3}
+  walkAmbienceVolume: 0.08
+  walkAmbienceFadeSpeed: 2
 --- !u!114 &3172142714187877286
 MonoBehaviour:
   m_ObjectHideFlags: 0
