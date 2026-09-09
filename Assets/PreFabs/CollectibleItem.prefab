@@ -31,7 +31,7 @@ Transform:
   m_LocalScale: {x: 0.37590536, y: 0.37590536, z: 0.37590536}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6905392391846957647}
+  - {fileID: 5721096491660807168}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &6069998118228485401
@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItem
   rotationSpeed: 50
---- !u!1001 &1616158304837245451
+--- !u!1001 &494327592691369028
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -137,8 +137,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: -4161369568681901532, guid: 48b46d76d194b4fdcad4a67f4f92f346, type: 3}
---- !u!4 &6905392391846957647 stripped
+--- !u!4 &5721096491660807168 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -3910990755373119420, guid: 48b46d76d194b4fdcad4a67f4f92f346, type: 3}
-  m_PrefabInstance: {fileID: 1616158304837245451}
+  m_PrefabInstance: {fileID: 494327592691369028}
   m_PrefabAsset: {fileID: 0}

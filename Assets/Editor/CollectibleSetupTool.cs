@@ -1,20 +1,23 @@
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.SceneManagement;
 
 // 1. Reemplaza la esfera placeholder del prefab CollectibleItem por el modelo 3D del
-//    disquete (Assets/Modelos). 2. Esparce varias copias de ese prefab en puntos
-//    repartidos del laberinto en Mini_Build_P y configura el LevelManager para que
-//    sepa cuántos hay que recolectar en total.
+//    disquete (Assets/Modelos). 2. Coloca un CollectibleItem como hijo de cada punto
+//    dentro de "CollectibleSpawnPoints" en Mini_Build_P y configura el LevelManager
+//    para que sepa cuántos hay que recolectar en total.
+//
+// Los puntos de spawn son objetos vacíos que tú mueves a mano en el editor viendo el
+// mapa real — nada de heurísticas geométricas adivinando qué es "adentro" del laberinto.
+// Como el coleccionable es hijo del punto, moverlo en la escena mueve al coleccionable
+// con él, sin necesidad de volver a correr esta herramienta.
 public static class CollectibleSetupTool
 {
     private const string ScenePath = "Assets/Scenes/Mini_Build_P.unity";
     private const string PrefabPath = "Assets/PreFabs/CollectibleItem.prefab";
     private const string ModelPath = "Assets/Modelos/arunangshubanerjee-floppy-disk-2052.glb";
-    private const int CollectibleCount = 5;
+    private const string SpawnPointsParentName = "CollectibleSpawnPoints";
+    private const int DefaultSpawnPointCount = 5;
     private const float FloatHeight = 0.45f;
 
     [MenuItem("Tools/Laberinto/Setup Coleccionables en Mini_Build_P")]
@@ -92,10 +95,6 @@ public static class CollectibleSetupTool
 
         var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
 
-        // Limpia coleccionables puestos en una corrida anterior de esta herramienta
-        var existingParent = GameObject.Find("Collectibles");
-        if (existingParent != null) Object.DestroyImmediate(existingParent);
-
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
         if (prefab == null)
         {
@@ -103,21 +102,36 @@ public static class CollectibleSetupTool
             return;
         }
 
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        Rect wallFootprint = ComputeWallFootprint(scene);
-        Vector3[] candidates = GetValidPoints(wallFootprint, playerObj != null ? playerObj.transform.position : (Vector3?)null);
-        List<Vector3> chosenPoints = PickFarthestPoints(candidates, CollectibleCount);
+        // Limpia el grupo "Collectibles" de corridas anteriores (el sistema viejo de
+        // esparcido automático) para que no queden coleccionables duplicados o mal ubicados
+        var oldCollectibles = GameObject.Find("Collectibles");
+        if (oldCollectibles != null) Object.DestroyImmediate(oldCollectibles);
 
-        var parent = new GameObject("Collectibles");
+        // Los puntos de spawn NO se destruyen ni se recrean en cada corrida: si ya los
+        // moviste a mano, esta herramienta debe respetar dónde los dejaste
+        var spawnPointsParent = GameObject.Find(SpawnPointsParentName);
+        if (spawnPointsParent == null)
+        {
+            spawnPointsParent = CreateDefaultSpawnPoints();
+            Debug.Log($"CollectibleSetupTool: no existía \"{SpawnPointsParentName}\", se crearon " +
+                      $"{DefaultSpawnPointCount} puntos de ejemplo cerca del spawn del jugador. " +
+                      "Muévelos en el editor a donde quieras que aparezcan los coleccionables y vuelve a correr esto.");
+        }
 
         int placed = 0;
-        foreach (var point in chosenPoints)
+        foreach (Transform point in spawnPointsParent.transform)
         {
-            if (!NavMesh.SamplePosition(point, out var hit, 2f, NavMesh.AllAreas)) continue;
+            // Si ya tiene un coleccionable (de una corrida anterior), no lo duplica
+            if (point.Find("Coleccionable") != null)
+            {
+                placed++;
+                continue;
+            }
 
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
-            instance.transform.SetParent(parent.transform);
-            instance.transform.position = hit.position + Vector3.up * FloatHeight;
+            instance.name = "Coleccionable";
+            instance.transform.SetParent(point, false);
+            instance.transform.localPosition = Vector3.up * FloatHeight;
             placed++;
         }
 
@@ -134,118 +148,27 @@ public static class CollectibleSetupTool
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
 
-        Debug.Log($"CollectibleSetupTool: se colocaron {placed} coleccionables en el laberinto.");
+        Debug.Log($"CollectibleSetupTool: {placed} coleccionables colocados en los puntos de \"{SpawnPointsParentName}\".");
     }
 
-    private static readonly string[] NonMazeRootNames = { "Player", "Enemy", "AmbientAudio", "Navigation", "Collectibles", "LevelManager" };
-
-    // Las heurísticas por rayos/pathfinding no bastaron: Mini_Build_P es una construcción
-    // parcial y el piso "de afuera" resultaba tan caminable y techado como el de adentro.
-    // En vez de adivinar, se calcula directamente el rectángulo (en XZ) que ocupan las
-    // paredes reales: cualquier collider "alto" (no un piso/techo plano) cuenta como pared,
-    // y se toma la caja que las envuelve a todas. Esto puede recortar de más si el laberinto
-    // no es rectangular, pero es mucho más confiable que intentar distinguir "adentro" con
-    // rayos sueltos.
-    private static Rect ComputeWallFootprint(Scene scene)
+    // Primera vez que se corre la herramienta: crea los puntos como ejemplo alrededor
+    // del spawn del jugador (o del origen si no hay Player en la escena) para que tengas
+    // algo que arrastrar en vez de partir de la nada
+    private static GameObject CreateDefaultSpawnPoints()
     {
-        const float minWallHeight = 1f;
-        Bounds? footprint = null;
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        Vector3 origin = playerObj != null ? playerObj.transform.position : Vector3.zero;
 
-        foreach (var root in scene.GetRootGameObjects())
+        var parent = new GameObject(SpawnPointsParentName);
+
+        for (int i = 0; i < DefaultSpawnPointCount; i++)
         {
-            if (System.Array.IndexOf(NonMazeRootNames, root.name) >= 0) continue;
-
-            foreach (var col in root.GetComponentsInChildren<Collider>(true))
-            {
-                if (col.bounds.size.y < minWallHeight) continue; // descarta piso/techo (planos)
-
-                if (footprint == null)
-                {
-                    footprint = new Bounds(col.bounds.center, col.bounds.size);
-                }
-                else
-                {
-                    var b = footprint.Value;
-                    b.Encapsulate(col.bounds);
-                    footprint = b;
-                }
-            }
+            var point = new GameObject($"Point_{i + 1}");
+            point.transform.SetParent(parent.transform);
+            float angle = i * (360f / DefaultSpawnPointCount) * Mathf.Deg2Rad;
+            point.transform.position = origin + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * 3f;
         }
 
-        if (footprint == null) return new Rect(-10000f, -10000f, 20000f, 20000f);
-
-        Bounds bounds = footprint.Value;
-        return new Rect(bounds.min.x, bounds.min.z, bounds.size.x, bounds.size.z);
-    }
-
-    private static Vector3[] GetValidPoints(Rect wallFootprint, Vector3? referencePoint)
-    {
-        var triangulation = NavMesh.CalculateTriangulation();
-        var valid = new List<Vector3>();
-        var path = new NavMeshPath();
-
-        for (int i = 0; i < triangulation.indices.Length; i += 3)
-        {
-            Vector3 a = triangulation.vertices[triangulation.indices[i]];
-            Vector3 b = triangulation.vertices[triangulation.indices[i + 1]];
-            Vector3 c = triangulation.vertices[triangulation.indices[i + 2]];
-            Vector3 centroid = (a + b + c) / 3f;
-
-            if (!wallFootprint.Contains(new Vector2(centroid.x, centroid.z))) continue;
-
-            if (referencePoint.HasValue)
-            {
-                bool reachable = NavMesh.CalculatePath(referencePoint.Value, centroid, NavMesh.AllAreas, path)
-                                  && path.status == NavMeshPathStatus.PathComplete;
-                if (!reachable) continue;
-            }
-
-            valid.Add(centroid);
-        }
-
-        Debug.Log($"CollectibleSetupTool: {valid.Count} de {triangulation.indices.Length / 3} triángulos quedaron dentro del rectángulo de paredes.");
-
-        // Si por algún motivo nada resultó válido, mejor usar los vértices sin
-        // filtrar que no colocar ningún coleccionable
-        return valid.Count > 0 ? valid.ToArray() : triangulation.vertices;
-    }
-
-    // Muestreo por "punto más lejano": arranca de un vértice al azar y en cada paso
-    // agrega el candidato cuya distancia al más cercano de los ya elegidos sea la
-    // mayor posible. A diferencia de un simple mínimo de separación, esto reparte
-    // los puntos activamente hacia los extremos del laberinto en vez de solo evitar
-    // que queden pegados.
-    private static List<Vector3> PickFarthestPoints(Vector3[] candidates, int count)
-    {
-        var chosen = new List<Vector3>();
-        if (candidates.Length == 0) return chosen;
-
-        chosen.Add(candidates[Random.Range(0, candidates.Length)]);
-
-        while (chosen.Count < count && chosen.Count < candidates.Length)
-        {
-            Vector3 best = candidates[0];
-            float bestDistance = -1f;
-
-            foreach (var candidate in candidates)
-            {
-                float nearestChosenDistance = float.MaxValue;
-                foreach (var picked in chosen)
-                {
-                    float d = Vector3.Distance(candidate, picked);
-                    if (d < nearestChosenDistance) nearestChosenDistance = d;
-                }
-
-                if (nearestChosenDistance > bestDistance)
-                {
-                    bestDistance = nearestChosenDistance;
-                    best = candidate;
-                }
-            }
-
-            chosen.Add(best);
-        }
-
-        return chosen;
+        return parent;
     }
 }
