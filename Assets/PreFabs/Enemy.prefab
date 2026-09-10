@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1681670565609193569}
   - component: {fileID: 1951306463075758239}
   - component: {fileID: 1136944298987340541}
+  - component: {fileID: 2485350672805814794}
   - component: {fileID: 4926931652132153721}
   - component: {fileID: 6219693985526825444}
   m_Layer: 0
@@ -214,6 +215,18 @@ MonoBehaviour:
   searchDuration: 2
   patrolSpeed: 1.8
   patrolWaitTime: 2
+--- !u!114 &2485350672805814794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3486250996855847893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb270b8c59aeb4d57b94a6901b12a3ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyCatchPlayer
 --- !u!170 &4926931652132153721
 AudioDistortionFilter:
   m_ObjectHideFlags: 0
@@ -253,6 +266,7 @@ GameObject:
   - component: {fileID: 8276335442436029390}
   - component: {fileID: 149850483523731889}
   - component: {fileID: 3364612119703560054}
+  - component: {fileID: 6145919684855098485}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -332,3 +346,30 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6145919684855098485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4728057791541572145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 160101bb7213a461f96e831cdd146877, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyRandomFace
+  faceOptions:
+  - face: {fileID: 2800000, guid: 99c84a2692f5847ad91b5238bcfb4af2, type: 3}
+    music: {fileID: 0}
+  - face: {fileID: 2800000, guid: 5a821c9b030054fc4875e3ae16f7fe8c, type: 3}
+    music: {fileID: 8300000, guid: 67ce4250507054e8aaa0a7b5f995ae13, type: 3}
+  - face: {fileID: 2800000, guid: 4a22d2dc034d34f329823fae40871487, type: 3}
+    music: {fileID: 8300000, guid: 290e7c62ecceb493f8535a991f3286e0, type: 3}
+  - face: {fileID: 2800000, guid: 972c6827ce6f54b7f8c2a9c2cdc4cc0f, type: 3}
+    music: {fileID: 8300000, guid: 93f3cda7be9574763a150e8604f0d3b7, type: 3}
+  - face: {fileID: 2800000, guid: 8f7c66f62b172420e90bfb25008dc138, type: 3}
+    music: {fileID: 8300000, guid: 9a2cbefae5aa24ccface2c73f985f28b, type: 3}
+  - face: {fileID: 2800000, guid: 363bb6b7b44be447488bc4551f648457, type: 3}
+    music: {fileID: 8300000, guid: 0b37533f9ee3b48449c24efa9ee1f1f0, type: 3}
+  - face: {fileID: 2800000, guid: 264019c2a55b84fbe84c7c34d7e4e155, type: 3}
+    music: {fileID: 8300000, guid: 0ee811475f0ce4121b471a479ca7aed0, type: 3}

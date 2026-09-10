@@ -45,6 +45,20 @@ public class EnemyProximityAudio : MonoBehaviour
         if (proximityClip != null) audioSource.Play();
     }
 
+    // Permite que otro script (por ejemplo EnemyRandomFace, al elegir la cara) le
+    // asigne una música distinta. Funciona sin importar si corre antes o después de
+    // Start() de este componente: si el AudioSource aún no está cacheado, lo busca.
+    public void SetProximityClip(AudioClip clip)
+    {
+        if (clip == null) return;
+
+        proximityClip = clip;
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+
+        audioSource.clip = clip;
+        audioSource.Play();
+    }
+
     void Update()
     {
         if (player == null) return;

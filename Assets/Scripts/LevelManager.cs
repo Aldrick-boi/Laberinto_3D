@@ -8,6 +8,8 @@ public class LevelManager : MonoBehaviour
     public int totalRequired = 5;      // Cantidad de ítems necesarios
     private int currentCollected = 0;   // Contador actual
 
+    private GameObject exitPoint;
+
     private void Awake()
     {
         // Patrón Singleton sencillo para poder llamarlo desde cualquier script
@@ -18,7 +20,14 @@ public class LevelManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
+
+        // La salida empieza desactivada; se activa recién al completar el nivel.
+        // Se busca aquí (antes de que nada más corra) porque GameObject.Find no
+        // encuentra objetos ya desactivados
+        exitPoint = GameObject.Find("Exit");
+        if (exitPoint != null) exitPoint.SetActive(false);
     }
 
     public void AddCollectible()
@@ -35,6 +44,7 @@ public class LevelManager : MonoBehaviour
     private void CompleteLevel()
     {
         Debug.Log("¡NIVEL COMPLETADO! Has recogido todos los objetos.");
-        // Aquí podrás activar la puerta de salida, cambiar de escena, etc.
+
+        if (exitPoint != null) exitPoint.SetActive(true);
     }
 }

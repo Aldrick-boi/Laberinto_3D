@@ -93,15 +93,60 @@ public static class EnemySetupTool
         }
         visual.transform.localScale = new Vector3(visualWidth, visualHeight, 1f);
 
-        // Cara aleatoria: toma todas las imágenes de Assets/Media y elige una al azar
-        // cada vez que arranca la partida (Enemy.mat sigue siendo el fallback visual en el Editor)
+        // Cara + música: cada imagen de Assets/Media (ya nombrada por persona) se
+        // empareja a mano con su pista en Assets/Audios. Al arrancar la partida,
+        // EnemyRandomFace elige un par al azar. Si algún nombre no está en esta lista
+        // (o su pista todavía no existe), se queda sin música y se avisa por consola.
         var randomFace = visual.AddComponent<EnemyRandomFace>();
+
+        var namedPairs = new (string image, string music)[]
+        {
+            ("Paulo.jpg", "Farsante.mp3"),
+            ("Nadia.jpg", "Te estoy correteando.mp3"),
+            ("Moge.jpg", "No Hago Trap.mp3"),
+            ("Emi.JPG", "Floral Fury.mp3"),
+            ("Beta.JPG", "Ninjago.mp3"),
+            ("Amezcua.jpg", "Maximo Samar.mp3"),
+        };
+
         string[] mediaImageGuids = AssetDatabase.FindAssets("t:Texture2D", new[] { "Assets/Media" });
-        var faceOptions = new Texture2D[mediaImageGuids.Length];
+        var faceOptions = new EnemyRandomFace.FaceAudioPair[mediaImageGuids.Length];
         for (int i = 0; i < mediaImageGuids.Length; i++)
         {
             string imagePath = AssetDatabase.GUIDToAssetPath(mediaImageGuids[i]);
-            faceOptions[i] = AssetDatabase.LoadAssetAtPath<Texture2D>(imagePath);
+            string imageFileName = Path.GetFileName(imagePath);
+
+            string musicFileName = null;
+            foreach (var pair in namedPairs)
+            {
+                if (pair.image == imageFileName) { musicFileName = pair.music; break; }
+            }
+
+            AudioClip music = null;
+            if (imageFileName == "Shigue.jpg")
+            {
+                // TEKNOCITY...mp3: nombre de archivo con acentos/corchetes poco confiable
+                // para comparar como texto, así que se referencia por GUID directo
+                const string teknocityGuid = "0ee811475f0ce4121b471a479ca7aed0";
+                string teknocityPath = AssetDatabase.GUIDToAssetPath(teknocityGuid);
+                music = AssetDatabase.LoadAssetAtPath<AudioClip>(teknocityPath);
+            }
+            else if (musicFileName != null)
+            {
+                string musicPath = "Assets/Audios/" + musicFileName;
+                music = AssetDatabase.LoadAssetAtPath<AudioClip>(musicPath);
+                if (music == null) Debug.LogWarning($"EnemySetupTool: no se encontró \"{musicPath}\" para {imageFileName}.");
+            }
+            else
+            {
+                Debug.LogWarning($"EnemySetupTool: \"{imageFileName}\" no tiene música asignada todavía; se queda sin sonido de proximidad.");
+            }
+
+            faceOptions[i] = new EnemyRandomFace.FaceAudioPair
+            {
+                face = AssetDatabase.LoadAssetAtPath<Texture2D>(imagePath),
+                music = music
+            };
         }
         randomFace.faceOptions = faceOptions;
 
@@ -113,6 +158,7 @@ public static class EnemySetupTool
         audioSource.dopplerLevel = 0f; // evita que el movimiento del enemigo le cambie el tono al audio
 
         enemy.AddComponent<EnemyAI>();
+        enemy.AddComponent<EnemyCatchPlayer>();
         // RequireComponent en EnemyProximityAudio agrega automáticamente el AudioDistortionFilter
         var proximityAudio = enemy.AddComponent<EnemyProximityAudio>();
         enemy.GetComponent<AudioDistortionFilter>().distortionLevel = 0f;
