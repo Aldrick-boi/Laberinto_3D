@@ -360,7 +360,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyRandomFace
   faceOptions:
   - face: {fileID: 2800000, guid: 99c84a2692f5847ad91b5238bcfb4af2, type: 3}
-    music: {fileID: 0}
+    music: {fileID: 8300000, guid: 219c3a95e36374028a64fc00c65dbbce, type: 3}
   - face: {fileID: 2800000, guid: 5a821c9b030054fc4875e3ae16f7fe8c, type: 3}
     music: {fileID: 8300000, guid: 67ce4250507054e8aaa0a7b5f995ae13, type: 3}
   - face: {fileID: 2800000, guid: 4a22d2dc034d34f329823fae40871487, type: 3}
