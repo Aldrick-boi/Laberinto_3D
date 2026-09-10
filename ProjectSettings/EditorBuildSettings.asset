@@ -8,11 +8,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Menu.unity
     guid: e70e1f84df79d1643a65c2891c7200f6
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
     path: Assets/Scenes/Mini_Build_P.unity
     guid: d7c7be0f8bc99874281f6b9f5d53d46f
+  - enabled: 1
+    path: Assets/Scenes/VIDEO_EASTER.unity
+    guid: 7d1e350a45e6a5444bdc0c4ca3ffd1cb
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

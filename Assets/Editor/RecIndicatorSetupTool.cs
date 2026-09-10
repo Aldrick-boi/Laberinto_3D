@@ -64,6 +64,7 @@ public static class RecIndicatorSetupTool
         text.fontSize = 44f;
         text.color = Color.white;
         text.alignment = TextAlignmentOptions.MidlineLeft;
+        HUDTextUtility.ApplyWhiteMaterial(text);
         var textRect = textGO.GetComponent<RectTransform>();
         textRect.anchorMin = new Vector2(0f, 0.5f);
         textRect.anchorMax = new Vector2(0f, 0.5f);

@@ -8,6 +8,8 @@ public class LevelManager : MonoBehaviour
     public int totalRequired = 5;      // Cantidad de ítems necesarios
     private int currentCollected = 0;   // Contador actual
 
+    public int CurrentCollected => currentCollected;
+
     private GameObject exitPoint;
 
     private void Awake()
