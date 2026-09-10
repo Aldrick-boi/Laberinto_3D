@@ -68,6 +68,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItem
   rotationSpeed: 50
+  collectSound: {fileID: 8300000, guid: 635c5134c65cb45c7a9864e349d42f00, type: 3}
+  collectVolume: 1
 --- !u!1001 &494327592691369028
 PrefabInstance:
   m_ObjectHideFlags: 0
