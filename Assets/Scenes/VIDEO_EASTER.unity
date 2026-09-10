@@ -532,7 +532,7 @@ GameObject:
   - component: {fileID: 1129453794}
   - component: {fileID: 1129453793}
   - component: {fileID: 1129453792}
-  - component: {fileID: 1129453791}
+  - component: {fileID: 1129453795}
   m_Layer: 5
   m_Name: VIDEO
   m_TagString: Untagged
@@ -559,20 +559,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1129453791
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1129453789}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd3d07f00ebe94546a3062472cfc4899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VideoController
-  loadingIndicator: {fileID: 0}
-  playOnStart: 1
 --- !u!328 &1129453792
 VideoPlayer:
   m_ObjectHideFlags: 0
@@ -644,6 +630,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1129453789}
   m_CullTransparentMesh: 1
+--- !u!114 &1129453795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1129453789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd3d07f00ebe94546a3062472cfc4899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VideoController
+  loadingIndicator: {fileID: 0}
+  playOnStart: 1
+  allowEscapeToReturn: 1
+  videoRoot: {fileID: 69391909}
+  gameSceneName: Mini_Build_P
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
